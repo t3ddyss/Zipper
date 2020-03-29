@@ -5,6 +5,7 @@
 #include <ios>
 #include <map>
 #include <algorithm>
+#include <bitset>
 
 #ifndef ZIPPER_HUFFMAN_H
 #define ZIPPER_HUFFMAN_H
@@ -16,15 +17,14 @@ using std::map;
 using std::pair;
 using std::sort;
 using std::tuple;
+using std::get;
 
 class Huffman
 {
 public:
-    explicit Huffman(vector<byte> bytes);
+    vector<byte> Encode(vector<byte> bytes);
 
-    vector<byte> Encode();
-
-    //vector<byte> Decode();
+    vector<byte> Decode(vector<byte> bytes);
 
 private:
     class HuffmanTree
@@ -73,7 +73,7 @@ union DoubleShortByteUnion
 {
     double Double;
     unsigned short uShort;
-    unsigned char uBytes[8];
+    byte uBytes[8];
 };
 
 

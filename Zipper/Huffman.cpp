@@ -5,11 +5,13 @@
 #include "Huffman.h"
 #include <utility>
 
-map<byte, pair<byte, unsigned short>> Huffman::codesTable;
+map<byte, tuple<byte, unsigned short, double>> Huffman::codesTable;
 map<byte, double> Huffman::probabilitiesTable;
 
-vector<byte> Huffman::Encode()
+vector<byte> Huffman::Encode(vector<byte> bytes)
 {
+    this->bytes = bytes;
+
     buildProbabilityTable();
 
     HuffmanTree* tree = new HuffmanTree();
@@ -22,42 +24,36 @@ vector<byte> Huffman::Encode()
     DoubleShortByteUnion doubleShortByteUnion;
     doubleShortByteUnion.uShort = codesTable.size();
 
-    //auto headerSize = (unsigned short) codesTable.size();
+    result.push_back(doubleShortByteUnion.uBytes[1]);
+    result.push_back(doubleShortByteUnion.uBytes[0]);
 
-    /*byte* code = new byte[2]; //= (byte*)(headerSize);
-
-    code[0] = headerSize; // вторые 8
-    code[1] = (headerSize >> 8); // первые 8
-
-    result.push_back(code[1]);
-    result.push_back(code[0]);*/
-
-    //byte* code = reinterpret_cast<byte*>(headerSize);
-
-    result.push_back(shortByteUnion.uBytes[1]);
-    result.push_back(shortByteUnion.uBytes[0]);
-
-    map<byte, pair<byte, unsigned short>>::iterator it;
+    map<byte, tuple<byte, unsigned short, double>>::iterator it;
 
     for (it = codesTable.begin(); it != codesTable.end(); it++)
     {
         result.push_back(it->first);
-        result.push_back(it->second.first);
+        result.push_back(get<0>(it->second));
 
-        byte* code = (byte*)&it->second.second;
+        doubleShortByteUnion.uShort = (get<1>(it->second));
+        result.push_back(doubleShortByteUnion.uBytes[1]);
+        result.push_back(doubleShortByteUnion.uBytes[0]);
 
-        result.push_back(code[0]);
-        result.push_back(code[1]);
+        doubleShortByteUnion.Double = (get<2>(it->second));
+
+        for (int j = 7; j >= 0; j--)
+        {
+            result.push_back(doubleShortByteUnion.uBytes[j]);
+        }
     }
 
     for (size_t i = 0; i < bytes.size(); i++)
     {
         it = codesTable.find(bytes[i]);
 
-        byte* code = (byte*)&it->second.second;
+        doubleShortByteUnion.uShort = (get<1>(it->second));
 
-        result.push_back(code[0]);
-        result.push_back(code[1]);
+        result.push_back(doubleShortByteUnion.uBytes[1]);
+        result.push_back(doubleShortByteUnion.uBytes[0]);
     }
 
     return result;
@@ -94,14 +90,38 @@ void Huffman::buildCodesTable(const map<byte, string>& codeTable)
         byte leadingZerosCount = found == string::npos ? it->second.length() : found;
 
         unsigned short code = std::stoi(it->second, nullptr, 2);
-        codesTable.insert(std::make_pair(it->first, std::make_pair(leadingZerosCount, code)));
+        codesTable.insert(
+                std::make_pair(
+                        it->first,
+                        std::make_tuple(leadingZerosCount, code, probabilitiesTable.find(it->first)->second)));
     }
 
 }
 
-Huffman::Huffman(vector<byte> bytes)
+vector<byte> Huffman::Decode(vector<byte> bytes)
 {
-    this->bytes = std::move(bytes);
+    codesTable.clear();
+    probabilitiesTable.clear();
+
+    this->bytes = bytes;
+
+    DoubleShortByteUnion doubleShortByteUnion;
+
+    doubleShortByteUnion.uBytes[1] = bytes[0];
+    doubleShortByteUnion.uBytes[0] = bytes[1];
+
+    size_t symbolTableCount = doubleShortByteUnion.uShort;
+
+    for (size_t i = 2; i < symbolTableCount * 12 + 2; i += 12)
+    {
+        byte symbol = bytes[i];
+        byte leadingZeros = bytes[i + 1];
+
+        doubleShortByteUnion.uBytes[1] = bytes[i + 2];
+        doubleShortByteUnion.uBytes[0] = bytes[i + 3];
+
+        string code = std::bitset<16>(doubleShortByteUnion.uShort).to_string();
+    }
 }
 
 Huffman::HuffmanTree::Node::Node(double probability, byte symbol)

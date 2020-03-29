@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
     std::cout << bytes.size() << std::endl;
     std::cout << "File was read!" << std::endl;
 
-    Huffman* huffman = new Huffman(bytes);
-    vector<byte> result = huffman->Encode();
+    Huffman* huffman = new Huffman();
+    vector<byte> result = huffman->Encode(bytes);
 
     WriteAllBytes(result);
     std::cout << "File was written!" << std::endl;
