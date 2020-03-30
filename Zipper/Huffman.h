@@ -22,16 +22,16 @@ using std::get;
 class Huffman
 {
 public:
-    vector<byte> Encode(vector<byte> bytes);
+    vector<byte> Encode(vector<byte> input);
 
-    vector<byte> Decode(vector<byte> bytes);
+    vector<byte> Decode(vector<byte> input);
 
 private:
     class HuffmanTree
     {
     public:
         HuffmanTree();
-        map<byte, string> buildTree();
+        void buildTree();
 
     private:
         struct Node
@@ -61,17 +61,17 @@ private:
 
     void buildProbabilityTable();
 
-    void buildCodesTable(const map<byte, string>& codeTable);
-
+    const int SYMBOL_DATA = 12; //9
     vector<byte> bytes;
-    static map<byte, tuple<byte, unsigned short, double>> codesTable; //<символ, <кол-во ведущих нулей, код, вероятность>>
-    static map<byte, double> probabilitiesTable; //<символ, вероятность>
+    static map<byte, tuple<string, double>> symbolsTable; //<символ, <код, вероятность>>
+    //static map<byte, double> probabilitiesTable; //<символ, вероятность>
 
 };
 
-union DoubleShortByteUnion
+union DoubleLongShortByteUnion
 {
     double Double;
+    unsigned long long uLong;
     unsigned short uShort;
     byte uBytes[8];
 };
