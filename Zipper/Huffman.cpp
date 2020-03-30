@@ -3,10 +3,8 @@
 //
 
 #include "Huffman.h"
-#include <utility>
 
 map<byte, tuple<string, double>> Huffman::symbolsTable;
-//map<byte, double> Huffman::probabilitiesTable;
 
 vector<byte> Huffman::Encode(vector<byte> input)
 {
@@ -112,33 +110,54 @@ vector<byte> Huffman::Decode(vector<byte> input)
 
     this->bytes = std::move(input);
 
-    DoubleLongShortByteUnion doubleShortByteUnion;
+    DoubleLongShortByteUnion doubleLongShortByteUnion;
 
-    doubleShortByteUnion.uBytes[1] = bytes[0];
-    doubleShortByteUnion.uBytes[0] = bytes[1];
+    doubleLongShortByteUnion.uBytes[1] = bytes[0];
+    doubleLongShortByteUnion.uBytes[0] = bytes[1];
 
-    size_t symbolTableCount = doubleShortByteUnion.uShort;
+    unsigned short symbolTableSize = doubleLongShortByteUnion.uShort;
 
-    for (size_t i = 2; i < symbolTableCount * SYMBOL_DATA + 2; i += SYMBOL_DATA)
+    for (int i = 2; i < 10; i++)
+    {
+        doubleLongShortByteUnion.uBytes[7 - (i - 2)] = bytes[i];
+    }
+
+    unsigned long long codeLength = doubleLongShortByteUnion.uLong;
+
+    for (size_t i = HEADER_BEGIN; i < symbolTableSize * SYMBOL_DATA + HEADER_BEGIN; i += SYMBOL_DATA)
     {
         byte symbol = bytes[i];
-        byte leadingZeros = bytes[i + 1];
 
-        /*doubleShortByteUnion.uBytes[1] = bytes[i + 2];
-        doubleShortByteUnion.uBytes[0] = bytes[i + 3];
-
-        string code = std::bitset<16>(doubleShortByteUnion.uShort).to_string();*/
-
-        for (int j = SYMBOL_DATA - 1; j >= 4; j--)
+        for (size_t j = i + 1; j < i + 9; j++)
         {
-            doubleShortByteUnion.uBytes[j] = bytes[i + SYMBOL_DATA - j];
+            doubleLongShortByteUnion.uBytes[7 - (j - (i + 1))] = bytes[j];
         }
 
+        double probability = doubleLongShortByteUnion.Double;
 
-
-
-
+        symbolsTable.insert(std::make_pair(
+                symbol, std::make_tuple("", probability)));
     }
+
+    HuffmanTree* tree = new HuffmanTree();
+    tree->buildTree();
+
+    vector<byte> output;
+
+    string code = "";
+
+    for (size_t i = symbolTableSize * SYMBOL_DATA + HEADER_BEGIN; i < bytes.size(); i++)
+    {
+        std::bitset<8> bitset8(bytes[i]);
+
+        code += bitset8.to_string();
+    }
+
+    int debug2 = code.length();
+
+    output = tree->findSymbols(code, codeLength);
+
+    return output;
 }
 
 Huffman::HuffmanTree::Node::Node(double probability, byte symbol)
@@ -206,7 +225,9 @@ void Huffman::HuffmanTree::buildTree()
         get<0>(symbolsTable.find(leaves[i]->symbol)->second) = leaves[i]->code;
     }
 
-    deleteTree(nodes[0]);
+    node = nodes[0];
+
+    //deleteTree(nodes[0]);
 }
 
 bool Huffman::HuffmanTree::isLeaf(Huffman::HuffmanTree::Node *node)
@@ -233,3 +254,38 @@ void Huffman::HuffmanTree::createCodes(Huffman::HuffmanTree::Node *root)
     createCodes(root->right);
     createCodes(root->left);
 }
+
+vector<byte> Huffman::HuffmanTree::findSymbols(string code, unsigned long long codeLength)
+{
+    vector<byte> output;
+
+    int codePosition = 0;
+
+    for (size_t i = 0; i < codeLength; i++)
+    {
+        string debug1 = code.substr(i, codeLength - i);
+        int debug2 = code.length();
+
+        if (code[i] == node->left->code[codePosition])
+        {
+            node = node->left;
+        }
+
+        else
+        {
+            node = node->right;
+        }
+
+        codePosition++;
+
+        if (isLeaf(node))
+        {
+            codePosition = 0;
+            output.push_back(node->symbol);
+            node = nodes[0];
+        }
+    }
+
+    return output;
+}
+

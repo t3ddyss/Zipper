@@ -32,6 +32,7 @@ private:
     public:
         HuffmanTree();
         void buildTree();
+        vector<byte> findSymbols(string code, unsigned long long codeLength);
 
     private:
         struct Node
@@ -53,7 +54,9 @@ private:
 
         void createCodes(Node* root);
 
-        vector<Node*> nodes;
+        vector<Node*> nodes; // node[0] -- tree root after buildTree() execution
+
+        Node* node;
 
     protected:
         vector<Node*> leaves;
@@ -61,10 +64,10 @@ private:
 
     void buildProbabilityTable();
 
-    const int SYMBOL_DATA = 12; //9
+    const int SYMBOL_DATA = 9;
+    const int HEADER_BEGIN = 10;
     vector<byte> bytes;
     static map<byte, tuple<string, double>> symbolsTable; //<символ, <код, вероятность>>
-    //static map<byte, double> probabilitiesTable; //<символ, вероятность>
 
 };
 
