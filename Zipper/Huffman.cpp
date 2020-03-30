@@ -153,8 +153,6 @@ vector<byte> Huffman::Decode(vector<byte> input)
         code += bitset8.to_string();
     }
 
-    int debug2 = code.length();
-
     output = tree->findSymbols(code, codeLength);
 
     return output;
@@ -261,10 +259,8 @@ vector<byte> Huffman::HuffmanTree::findSymbols(string code, unsigned long long c
 
     int codePosition = 0;
 
-    for (size_t i = 0; i < codeLength; i++)
+    for (unsigned long long i = 0; i < codeLength; i++)
     {
-        string debug1 = code.substr(i, codeLength - i);
-        int debug2 = code.length();
 
         if (code[i] == node->left->code[codePosition])
         {

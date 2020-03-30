@@ -31,22 +31,24 @@ void WriteAllBytes(const string& filename, vector<byte> bytes)
     ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size() * sizeof(byte));
 }
 
-void Decode()
+void Decode(const string& filename, const string& format)
 {
-    vector<byte> bytes = ReadAllBytes("output.bin");
+    vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".bin");
 
     Huffman* huffman = new Huffman();
     vector<byte> result = huffman->Decode(bytes);
-    WriteAllBytes("output.txt", result);
+
+    WriteAllBytes("./DATA/Decompressed/" + filename + format, result);
 }
 
-void Encode()
+void Encode(const string& filename, const string& format)
 {
-    vector<byte> bytes = ReadAllBytes("input.txt");
+    vector<byte> bytes = ReadAllBytes("./DATA/Original/" + filename + format);
 
     Huffman* huffman = new Huffman();
     vector<byte> result = huffman->Encode(bytes);
-    WriteAllBytes("output.bin", result);
+
+    WriteAllBytes("./DATA/Compressed/" + filename + ".bin", result);
 }
 
 int main(int argc, char *argv[])
@@ -58,7 +60,9 @@ int main(int argc, char *argv[])
     //std::cout << "File was read!" << std::endl;
 
 
-    Decode();
+//    Encode("image", ".png");
+//    Decode("image", ".png");
+
 
     std::cout << "File was written!" << std::endl;
 
