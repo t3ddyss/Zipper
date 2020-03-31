@@ -75,8 +75,8 @@ void DecodeLZ77(const string& filename, const string& format)
 int main(int argc, char *argv[])
 {
 
-    string filename = "book";
-    string format = ".doc";
+    string filename = "image1";
+    string format = ".png";
 
 
 //    EncodeHuffman(filename, format);

@@ -26,19 +26,15 @@ vector<byte> Huffman::Encode(vector<byte> input)
 
     string code = "";
 
-    // Length of code; 8 bytes
     for (size_t i = 0; i < bytes.size(); i++)
     {
         code += get<0>(symbolsTable.find(bytes[i])->second);
     }
 
-    unsigned long long codeLength = code.length();
-    doubleLongShortByteUnion.uLong = codeLength;
+    // Last byte's used bits; 1 byte
+    byte lastByteUsedBitsCount = code.length() % 8 == 0 ? 8 : code.length() % 8;
+    output.push_back(lastByteUsedBitsCount);
 
-    for (int j = 7; j >= 0; j--)
-    {
-        output.push_back(doubleLongShortByteUnion.uBytes[j]);
-    }
 
     map<byte, tuple<string, double>>::iterator it;
 
@@ -57,7 +53,7 @@ vector<byte> Huffman::Encode(vector<byte> input)
 
 
     // Code
-    for (size_t i = 0; i < codeLength - 8; i += 8)
+    for (size_t i = 0; i < code.length() - 8; i += 8)
     {
         string bits8 = code.substr(i, 8);
 
@@ -67,10 +63,9 @@ vector<byte> Huffman::Encode(vector<byte> input)
         output.push_back(byte1);
     }
 
-    byte last = codeLength % 8 == 0 ? 8 : codeLength % 8;
 
-    string bits8 = code.substr(code.length() - last, last);
-    bits8 += string(8 - last, '0');
+    string bits8 = code.substr(code.length() - lastByteUsedBitsCount, lastByteUsedBitsCount);
+    bits8 += string(8 - lastByteUsedBitsCount, '0');
 
     std::bitset<8> bitset8(bits8);
     byte byte1 = bitset8.to_ulong();
@@ -115,18 +110,11 @@ vector<byte> Huffman::Decode(vector<byte> input)
     doubleLongShortByteUnion.uBytes[1] = bytes[0];
     doubleLongShortByteUnion.uBytes[0] = bytes[1];
 
+    unsigned short symbolTableSize = doubleLongShortByteUnion.uShort;
     bytes.erase(bytes.begin(), bytes.begin() + 2);
 
-    unsigned short symbolTableSize = doubleLongShortByteUnion.uShort;
-
-    for (int i = 0; i < 8; i++)
-    {
-        doubleLongShortByteUnion.uBytes[7 - i] = bytes[i];
-    }
-
-    bytes.erase(bytes.begin(), bytes.begin() + 8);
-
-    unsigned long long codeLength = doubleLongShortByteUnion.uLong;
+    byte lastByteUsedBitsCount = bytes[0];
+    bytes.erase(bytes.begin());
 
     for (size_t i = 0; i < symbolTableSize * SYMBOL_DATA_SIZE; i += SYMBOL_DATA_SIZE)
     {
@@ -157,7 +145,7 @@ vector<byte> Huffman::Decode(vector<byte> input)
         code += bitset8.to_string();
     }
 
-    output = tree->findSymbols(code, codeLength);
+    output = tree->findSymbols(code, lastByteUsedBitsCount);
 
     return output;
 }
@@ -257,13 +245,13 @@ void Huffman::HuffmanTree::createCodes(Huffman::HuffmanTree::Node *root)
     createCodes(root->left);
 }
 
-vector<byte> Huffman::HuffmanTree::findSymbols(string code, unsigned long long codeLength)
+vector<byte> Huffman::HuffmanTree::findSymbols(string code, byte lastByteUsedBitsCount)
 {
     vector<byte> output;
 
     int codePosition = 0;
 
-    for (unsigned long long i = 0; i < codeLength; i++)
+    for (unsigned long long i = 0; i < code.length() - (8 - lastByteUsedBitsCount); i++)
     {
 
         if (code[i] == node->left->code[codePosition])
