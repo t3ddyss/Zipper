@@ -34,7 +34,7 @@ void WriteAllBytes(const string& filename, vector<byte> bytes)
 
 void DecodeHuffman(const string& filename, const string& format)
 {
-    vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".bin");
+    vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".huff");
 
     Huffman* huffman = new Huffman();
     vector<byte> result = huffman->Decode(bytes);
@@ -74,18 +74,17 @@ void DecodeLZ77(const string& filename, const string& format)
 
 int main(int argc, char *argv[])
 {
-    //std::cout << bytes.size() << std::endl;
-    //std::cout << "File was read!" << std::endl;
 
     string filename = "book";
     string format = ".doc";
 
 
-//    EncodeHuffman(filaname, format);
+//    EncodeHuffman(filename, format);
 //    DecodeHuffman(filename, format);
 
 //    EncodeLZ77(filename, format);
 //    DecodeLZ77(filename, format);
+
 
     std::cout << "File was written!" << std::endl;
 

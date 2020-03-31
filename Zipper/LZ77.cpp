@@ -97,15 +97,9 @@ vector<byte> LZ77::Encode(vector<byte> input, int VOCAB_BUFFER_SIZE, int PREVIEW
     }
 
     vector<byte>output;
-
     LongShortByteUnion longShortByteUnion;
 
-    /*longShortByteUnion.uLong = nodes.size();
-
-    for (int j = 7; j >= 0; j--)
-    {
-        output.push_back(longShortByteUnion.uBytes[j]);
-    }*/
+    output.push_back(input.size() % 10);
 
     for (size_t i = 0; i < nodes.size(); i++)
     {
@@ -132,14 +126,9 @@ vector<byte> LZ77::Decode(vector<byte> input)
 {
     LongShortByteUnion longShortByteUnion;
 
-    /*for (int j = 7; j >= 0; j--)
-    {
-        longShortByteUnion.uBytes[j] = input[7 - j];
-    }
-
-    unsigned long long nodesCount = longShortByteUnion.uLong;*/
-
     vector<Node*> nodes;
+    byte fileSizeLastDigit = input[0];
+    input.erase(input.begin());
 
     for (unsigned long long i = 0; i < input.size(); i += SYMBOL_DATA_SIZE)
     {
@@ -177,7 +166,8 @@ vector<byte> LZ77::Decode(vector<byte> input)
         result += nodes[i]->symbol;
     }
 
-    vector<byte> output(result.begin(), result.back() == '\0' ? result.end() - 1 : result.end());
+    vector<byte> output(result.begin(), result.size() % 10 == (fileSizeLastDigit + 1) % 10 ?
+                        result.end() - 1 : result.end());
 
     return output;
 }
