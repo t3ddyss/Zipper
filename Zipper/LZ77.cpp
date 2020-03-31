@@ -10,8 +10,14 @@ LZ77::Node *LZ77::findMatching(const string& vocab_buffer, int vocab_buffer_end,
     unsigned short position = 0, length = 0;
     unsigned short buffer_pos = 0;
 
-    string buffer = vocab_buffer.substr(0, vocab_buffer_end + 1);
-    std::reverse(buffer.begin(), buffer.end());
+    string buffer_reversed = vocab_buffer.substr(0, vocab_buffer_end + 1);
+    string buffer ="";
+
+    for (size_t i = 0; i < buffer_reversed.length(); i++)
+    {
+        buffer += buffer_reversed[buffer_reversed.length() - i - 1];
+    }
+
     buffer += preview_buffer.substr(0, preview_buffer_end + 1);
 
     for (int i = 1; i <= preview_buffer_end + 1; i++)
@@ -51,7 +57,7 @@ vector<byte> LZ77::Encode(vector<byte> input, int VOCAB_BUFFER_SIZE, int PREVIEW
     string preview_buffer;
 
     int vocab_buffer_end = -1;
-    int preview_buffer_end = min(1024, (int) input.size()) - 1;
+    int preview_buffer_end = min(PREVIEW_BUFFER_SIZE, (int) input.size()) - 1;
 
     vector<Node*> nodes;
 
@@ -171,7 +177,7 @@ vector<byte> LZ77::Decode(vector<byte> input)
         result += nodes[i]->symbol;
     }
 
-    vector<byte> output(result.begin(), result.end());
+    vector<byte> output(result.begin(), result.back() == '\0' ? result.end() - 1 : result.end());
 
     return output;
 }

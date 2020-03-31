@@ -57,7 +57,7 @@ void EncodeLZ77(const string& filename, const string& format)
     vector<byte> bytes = ReadAllBytes("./DATA/Original/" + filename + format);
 
     LZ77* lz77 = new LZ77();
-    vector<byte> result = lz77->Encode(bytes, LZ77::KB_4, LZ77::KB_1);
+    vector<byte> result = lz77->Encode(bytes, LZ77::KB_16, LZ77::KB_4);
 
     WriteAllBytes("./DATA/Compressed/" + filename + ".lz77", result);
 }
@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
     //std::cout << bytes.size() << std::endl;
     //std::cout << "File was read!" << std::endl;
 
-    string filename = "image1";
-    string format = ".png";
+    string filename = "book";
+    string format = ".doc";
 
 
 //    EncodeHuffman(filaname, format);
