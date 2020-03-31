@@ -4,6 +4,8 @@
 #include <fstream>
 #include "Huffman.h"
 #include "LZ77.h"
+#include "ReadWriter.h"
+#include <time.h>
 
 using std::string;
 using std::vector;
@@ -13,81 +15,122 @@ using std::ios;
 
 typedef unsigned char byte;
 
-vector<byte> ReadAllBytes(const string& filename)
+ReadWriter* readWriter;
+Huffman* huffman;
+LZ77* lz77;
+
+enum BUFFER_SIZE
 {
-    ifstream ifs(filename, ios::binary|ios::ate);
-    ifstream::pos_type pos = ifs.tellg();
+    KB_5, KB_10, KB_20
+};
 
-    vector<byte> bytes(pos);
+string folder = "./DATA/";
 
-    ifs.seekg(0, ios::beg);
-    ifs.read(reinterpret_cast<char *>(bytes.data()), pos);
+void EncodeHuffman(const string& filename, const string& format);
+void DecodeHuffman(const string& filename, const string& format);
+void EncodeLZ77(const string& filename, const string& format, BUFFER_SIZE bs);
+void DecodeLZ77(const string& filename, const string& format, BUFFER_SIZE bs);
 
-    return bytes;
+int main(int argc, char *argv[])
+{
+    readWriter = new ReadWriter();
+    huffman = new Huffman();
+    lz77 = new LZ77();
+
+    string filename = "book";
+    string format = ".doc";
+
+
+    for (int i = 0; i < 10; i++)
+    {
+        double start = (double) (clock());
+
+//        EncodeHuffman(filename, format);
+//        DecodeHuffman(filename, format);
+//
+//
+//        EncodeLZ77(filename, format, KB_5);
+        DecodeLZ77(filename, format, KB_5);
+
+        double end = (double) (clock());
+
+        std::cout << "File was written, process took " << end - start << " ms" << std::endl;
+    }
+
+    return 0;
 }
 
-void WriteAllBytes(const string& filename, vector<byte> bytes)
+
+void EncodeHuffman(const string& filename, const string& format)
 {
-    ofstream ofs(filename, ios::out | ios::binary);
-    ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size() * sizeof(byte));
+    vector<byte> bytes = readWriter->ReadAllBytes(folder + "Original/" + filename + format);
+
+    vector<byte> result = huffman->Encode(bytes);
+
+    readWriter->WriteAllBytes(folder + "Compressed/" + filename + ".huff", result);
 }
 
 void DecodeHuffman(const string& filename, const string& format)
 {
-    vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".huff");
+    vector<byte> bytes = readWriter->ReadAllBytes(folder + "Compressed/" + filename + ".huff");
 
-    Huffman* huffman = new Huffman();
     vector<byte> result = huffman->Decode(bytes);
 
-    WriteAllBytes("./DATA/Decompressed/" + filename + format, result);
+    readWriter->WriteAllBytes(folder + "Decompressed/" + filename + format, result);
 }
 
-void EncodeHuffman(const string& filename, const string& format)
+void EncodeLZ77(const string& filename, const string& format, BUFFER_SIZE bs)
 {
-    vector<byte> bytes = ReadAllBytes("./DATA/Original/" + filename + format);
+    vector<byte> bytes = readWriter->ReadAllBytes(folder + "Original/" + filename + format);
 
-    Huffman* huffman = new Huffman();
-    vector<byte> result = huffman->Encode(bytes);
+    int VOCAB_BUFFER_SIZE = LZ77::KB_4, PREVIEW_BUFFER_SIZE = LZ77::KB_1;
+    string extension = ".lz775";
 
-    WriteAllBytes("./DATA/Compressed/" + filename + ".huff", result);
+    switch(bs)
+    {
+        case KB_5:
+            VOCAB_BUFFER_SIZE = LZ77::KB_4;
+            PREVIEW_BUFFER_SIZE = LZ77::KB_1;
+            extension = ".lz775";
+            break;
+        case KB_10:
+            VOCAB_BUFFER_SIZE = LZ77::KB_8;
+            PREVIEW_BUFFER_SIZE = LZ77::KB_2;
+            extension = ".lz7710";
+            break;
+        case KB_20:
+            VOCAB_BUFFER_SIZE = LZ77::KB_16;
+            PREVIEW_BUFFER_SIZE = LZ77::KB_4;
+            extension = ".lz7720";
+            break;
+    }
+
+    vector<byte> result = lz77->Encode(bytes, VOCAB_BUFFER_SIZE, PREVIEW_BUFFER_SIZE);
+
+    readWriter->WriteAllBytes(folder + "Compressed/" + filename + extension, result);
 }
 
-void EncodeLZ77(const string& filename, const string& format)
+void DecodeLZ77(const string& filename, const string& format, BUFFER_SIZE bs)
 {
-    vector<byte> bytes = ReadAllBytes("./DATA/Original/" + filename + format);
+    string extension = ".lz775";
 
-    LZ77* lz77 = new LZ77();
-    vector<byte> result = lz77->Encode(bytes, LZ77::KB_16, LZ77::KB_4);
+    switch(bs)
+    {
+        case KB_5:
+            extension = ".lz775";
+            break;
+        case KB_10:
+            extension = ".lz7710";
+            break;
+        case KB_20:
+            extension = ".lz7720";
+            break;
+    }
 
-    WriteAllBytes("./DATA/Compressed/" + filename + ".lz77", result);
-}
+    vector<byte> bytes = readWriter->ReadAllBytes(folder + "Compressed/" + filename + extension);
 
-void DecodeLZ77(const string& filename, const string& format)
-{
-    vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".lz77");
-
-    LZ77* lz77 = new LZ77();
     vector<byte> result = lz77->Decode(bytes);
 
-    WriteAllBytes("./DATA/Decompressed/" + filename + format, result);
-}
-
-int main(int argc, char *argv[])
-{
-
-    string filename = "image1";
-    string format = ".png";
-
-
-//    EncodeHuffman(filename, format);
-//    DecodeHuffman(filename, format);
-
-//    EncodeLZ77(filename, format);
-//    DecodeLZ77(filename, format);
-
-
-    std::cout << "File was written!" << std::endl;
-
-    return 0;
+    readWriter->WriteAllBytes(folder + "Decompressed/" + filename + format, result);
 }
 

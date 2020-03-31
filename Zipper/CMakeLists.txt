@@ -3,4 +3,4 @@ project(Zipper)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Zipper main.cpp Huffman.cpp Huffman.h LZ77.cpp LZ77.h)
+add_executable(Zipper main.cpp Huffman.cpp Huffman.h LZ77.cpp LZ77.h ReadWriter.cpp ReadWriter.h)

@@ -31,7 +31,9 @@ private:
     {
     public:
         HuffmanTree();
+
         void buildTree();
+
         vector<byte> findSymbols(string code, byte lastByteUsedBitsCount);
 
     private:
@@ -73,7 +75,6 @@ private:
 union DoubleLongShortByteUnion
 {
     double Double;
-    unsigned long long uLong;
     unsigned short uShort;
     byte uBytes[8];
 };
