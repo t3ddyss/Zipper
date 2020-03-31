@@ -3,6 +3,7 @@
 #include <ios>
 #include <fstream>
 #include "Huffman.h"
+#include "LZ77.h"
 
 using std::string;
 using std::vector;
@@ -31,7 +32,7 @@ void WriteAllBytes(const string& filename, vector<byte> bytes)
     ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size() * sizeof(byte));
 }
 
-void Decode(const string& filename, const string& format)
+void DecodeHuffman(const string& filename, const string& format)
 {
     vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".bin");
 
@@ -41,28 +42,50 @@ void Decode(const string& filename, const string& format)
     WriteAllBytes("./DATA/Decompressed/" + filename + format, result);
 }
 
-void Encode(const string& filename, const string& format)
+void EncodeHuffman(const string& filename, const string& format)
 {
     vector<byte> bytes = ReadAllBytes("./DATA/Original/" + filename + format);
 
     Huffman* huffman = new Huffman();
     vector<byte> result = huffman->Encode(bytes);
 
-    WriteAllBytes("./DATA/Compressed/" + filename + ".bin", result);
+    WriteAllBytes("./DATA/Compressed/" + filename + ".huff", result);
+}
+
+void EncodeLZ77(const string& filename, const string& format)
+{
+    vector<byte> bytes = ReadAllBytes("./DATA/Original/" + filename + format);
+
+    LZ77* lz77 = new LZ77();
+    vector<byte> result = lz77->Encode(bytes, LZ77::KB_4, LZ77::KB_1);
+
+    WriteAllBytes("./DATA/Compressed/" + filename + ".lz77", result);
+}
+
+void DecodeLZ77(const string& filename, const string& format)
+{
+    vector<byte> bytes = ReadAllBytes("./DATA/Compressed/" + filename + ".lz77");
+
+    LZ77* lz77 = new LZ77();
+    vector<byte> result = lz77->Decode(bytes);
+
+    WriteAllBytes("./DATA/Decompressed/" + filename + format, result);
 }
 
 int main(int argc, char *argv[])
 {
-    /*string filename = "./";
-    filename += argv[1];*/
-
     //std::cout << bytes.size() << std::endl;
     //std::cout << "File was read!" << std::endl;
 
+    string filename = "image1";
+    string format = ".png";
 
-//    Encode("image", ".png");
-//    Decode("image", ".png");
 
+//    EncodeHuffman(filaname, format);
+//    DecodeHuffman(filename, format);
+
+//    EncodeLZ77(filename, format);
+//    DecodeLZ77(filename, format);
 
     std::cout << "File was written!" << std::endl;
 

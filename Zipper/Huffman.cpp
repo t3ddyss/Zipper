@@ -124,7 +124,7 @@ vector<byte> Huffman::Decode(vector<byte> input)
 
     unsigned long long codeLength = doubleLongShortByteUnion.uLong;
 
-    for (size_t i = HEADER_BEGIN; i < symbolTableSize * SYMBOL_DATA + HEADER_BEGIN; i += SYMBOL_DATA)
+    for (size_t i = HEADER_BEGIN_INDEX; i < symbolTableSize * SYMBOL_DATA_SIZE + HEADER_BEGIN_INDEX; i += SYMBOL_DATA_SIZE)
     {
         byte symbol = bytes[i];
 
@@ -146,7 +146,7 @@ vector<byte> Huffman::Decode(vector<byte> input)
 
     string code = "";
 
-    for (size_t i = symbolTableSize * SYMBOL_DATA + HEADER_BEGIN; i < bytes.size(); i++)
+    for (size_t i = symbolTableSize * SYMBOL_DATA_SIZE + HEADER_BEGIN_INDEX; i < bytes.size(); i++)
     {
         std::bitset<8> bitset8(bytes[i]);
 

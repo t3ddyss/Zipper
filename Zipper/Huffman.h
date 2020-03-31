@@ -64,8 +64,8 @@ private:
 
     void buildProbabilityTable();
 
-    const int SYMBOL_DATA = 9;
-    const int HEADER_BEGIN = 10;
+    const int SYMBOL_DATA_SIZE = 9;
+    const int HEADER_BEGIN_INDEX = 10;
     vector<byte> bytes;
     static map<byte, tuple<string, double>> symbolsTable; //<символ, <код, вероятность>>
 
