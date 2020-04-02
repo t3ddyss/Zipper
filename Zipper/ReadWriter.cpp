@@ -13,6 +13,7 @@ vector<byte> ReadWriter::ReadAllBytes(const string &filename)
 
     ifs.seekg(0, ios::beg);
     ifs.read(reinterpret_cast<char *>(bytes.data()), pos);
+    ifs.close();
 
     return bytes;
 }
@@ -21,4 +22,5 @@ void ReadWriter::WriteAllBytes(const string &filename, vector<byte> bytes)
 {
     ofstream ofs(filename, ios::out | ios::binary);
     ofs.write(reinterpret_cast<const char *>(bytes.data()), bytes.size() * sizeof(byte));
+    ofs.close();
 }

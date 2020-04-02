@@ -43,7 +43,7 @@ private:
     Node* findMatching(const string& vocab_buffer, int vocab_buffer_end, string preview_buffer,
                        int preview_buffer_end);
 
-    const int SYMBOL_DATA_SIZE = 5;
+    static const int SYMBOL_DATA_SIZE = 5;
 };
 
 union LongShortByteUnion

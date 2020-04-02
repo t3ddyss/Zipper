@@ -3,12 +3,14 @@
 //
 
 #include "Huffman.h"
+#include <utility>
+#include <iostream>
 
 map<byte, tuple<string, double>> Huffman::symbolsTable;
 
 vector<byte> Huffman::Encode(vector<byte> input)
 {
-    this->bytes = std::move(input);
+    bytes = std::move(input);
 
     buildProbabilityTable();
 
@@ -34,7 +36,6 @@ vector<byte> Huffman::Encode(vector<byte> input)
     // Last byte's used bits; 1 byte
     byte lastByteUsedBitsCount = code.length() % 8 == 0 ? 8 : code.length() % 8;
     output.push_back(lastByteUsedBitsCount);
-
 
     map<byte, tuple<string, double>>::iterator it;
 
@@ -103,7 +104,7 @@ vector<byte> Huffman::Decode(vector<byte> input)
 {
     symbolsTable.clear();
 
-    this->bytes = std::move(input);
+    bytes = std::move(input);
 
     DoubleLongShortByteUnion doubleLongShortByteUnion;
 
@@ -158,11 +159,6 @@ Huffman::HuffmanTree::Node::Node(double probability, byte symbol)
     this->right = nullptr;
 }
 
-bool Huffman::HuffmanTree::Node::operator>(const Huffman::HuffmanTree::Node &other) const
-{
-    return (probability > other.probability);
-}
-
 Huffman::HuffmanTree::HuffmanTree()
 {
     map<byte, tuple<string, double>>::iterator it;
@@ -172,7 +168,7 @@ Huffman::HuffmanTree::HuffmanTree()
         nodes.push_back(new Node(get<1>(it->second), it->first));
     }
 
-    sort(nodes.begin(), nodes.end());
+    sort(nodes.begin(), nodes.end(), NodesComparator());
 }
 
 void Huffman::HuffmanTree::buildTree()
@@ -275,5 +271,10 @@ vector<byte> Huffman::HuffmanTree::findSymbols(string code, byte lastByteUsedBit
     }
 
     return output;
+}
+
+Huffman::HuffmanTree::~HuffmanTree()
+{
+    deleteTree(nodes[0]);
 }
 

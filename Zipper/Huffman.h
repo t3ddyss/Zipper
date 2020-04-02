@@ -32,6 +32,8 @@ private:
     public:
         HuffmanTree();
 
+        ~HuffmanTree();
+
         void buildTree();
 
         vector<byte> findSymbols(string code, byte lastByteUsedBitsCount);
@@ -42,12 +44,18 @@ private:
             byte symbol;
             string code;
             double probability;
-            struct Node* left;
-            struct Node* right;
+            struct Node *left;
+            struct Node *right;
 
             explicit Node(double probability, byte symbol);
+        };
 
-            bool operator > (const Node& other) const;
+        struct NodesComparator
+        {
+            inline bool operator() (const Node* node1, const Node* node2)
+            {
+                return (node1->probability > node2->probability);
+            }
         };
 
         bool isLeaf(Node* node);
@@ -66,9 +74,9 @@ private:
 
     void buildProbabilityTable();
 
-    const int SYMBOL_DATA_SIZE = 9;
+    static const int SYMBOL_DATA_SIZE = 9;
     vector<byte> bytes;
-    static map<byte, tuple<string, double>> symbolsTable; //<символ, <код, вероятность>>
+    static map<byte, tuple<string, double>> symbolsTable; //<byte, <code, probability>>
 
 };
 
