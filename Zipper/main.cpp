@@ -22,6 +22,7 @@ enum BUFFER_SIZE
     KB_5, KB_10, KB_20
 };
 
+const int ITERATIONS_COUNT = 10;
 string folder;
 vector<pair<string, string>> files;
 
@@ -42,35 +43,77 @@ int main(int argc, char *argv[])
 
     //calculateEntropy();
 
-//    for (size_t NUMBER = 0; NUMBER < files.size(); NUMBER++)
-//    {
-//        pair<double, double> info = EncodeHuffman(files[1].first + files[1].second);
-//
-//        std::cout << files[NUMBER].first + " was compressed, time in ms: " << info.first << " comression ratio " << info.second << std::endl;
-//        break;
-//    }
+    HuffmanExperiment();
 
-    for (size_t i = 0; i < files.size(); i++)
-    {
+//    for (size_t i = 0; i < files.size(); i++)
+//    {
 //        pair<double, double> info = EncodeLZ77(files[9].first + files[9].second, KB_5);
 //        pair<double, double> info = EncodeHuffman(files[1].first + files[1].second);
 //        double info = DecodeHuffman(files[1].first);
 //        double info = DecodeLZ77(files[9].first, KB_5);
-
+//
 //        pair<double, double> info = EncodeHuffman("2.doc");
-        double info = DecodeHuffman("2");
-
-//        std::cout << files[10].first + " was decompressed, time in ms: " << std::endl;
-
-        if (i == 7) break;
-    }
+//        double info = DecodeHuffman("2");
+//
+//        if (i == 2) break;
+//    }
 
     return 0;
 }
 
 void HuffmanExperiment()
 {
+    ofstream fout1("HuffmanCompression.csv");
+    fout1 << "File; Average time; Compression ratio;" << std::endl;
 
+    for (size_t i = 0; i < files.size(); i++)
+    {
+        double averageTime = 0;
+        double compressionRatio = 0;
+
+        fout1 << files[i].first + files[i].second << ';';
+
+        for (int j = 0; j < ITERATIONS_COUNT + 1; j++)
+        {
+            pair<double, double> info = EncodeHuffman(files[i].first + files[i].second);
+
+            if (j == 0) continue;
+
+            averageTime += info.first;
+            compressionRatio = info.second;
+        }
+
+        fout1 << averageTime / ITERATIONS_COUNT << ';' << compressionRatio << ';' << std::endl;
+
+        std::cout << files[i].first << " compression completed!" << std::endl;
+    }
+
+    fout1.close();
+
+    ofstream fout2("HuffmanDecompression.csv");
+    fout2 << "File; Average time;" << std::endl;
+
+    for (size_t i = 0; i < files.size(); i++)
+    {
+        double averageTime = 0;
+
+        fout2 << files[i].first + files[i].second << ';';
+
+        for (int j = 0; j < ITERATIONS_COUNT + 1; j++)
+        {
+            double info = DecodeHuffman(files[i].first);
+
+            if (j == 0) continue;
+
+            averageTime += info;
+        }
+
+        fout2 << averageTime / ITERATIONS_COUNT << ';' << std::endl;
+
+        std::cout << files[i].first << " compression completed!" << std::endl;
+    }
+
+    fout2.close();
 }
 
 
