@@ -19,10 +19,10 @@ typedef unsigned char byte;
 
 enum BUFFER_SIZE
 {
-    KB_5, KB_10, KB_20
+    KB_5, KB_10, KB_20, END
 };
 
-const int ITERATIONS_COUNT = 10;
+const int ITERATIONS_COUNT = 3;
 string folder;
 vector<pair<string, string>> files;
 
@@ -32,6 +32,7 @@ pair<double, double> EncodeLZ77(const string& filename, BUFFER_SIZE bs);
 double DecodeLZ77(const string& filename, BUFFER_SIZE bs);
 
 void HuffmanExperiment();
+void LZ77Experiment();
 
 void calculateEntropy();
 void setFiles();
@@ -41,22 +42,10 @@ int main(int argc, char *argv[])
     folder = "./DATA/";
     setFiles();
 
-    //calculateEntropy();
+    calculateEntropy();
 
     HuffmanExperiment();
-
-//    for (size_t i = 0; i < files.size(); i++)
-//    {
-//        pair<double, double> info = EncodeLZ77(files[9].first + files[9].second, KB_5);
-//        pair<double, double> info = EncodeHuffman(files[1].first + files[1].second);
-//        double info = DecodeHuffman(files[1].first);
-//        double info = DecodeLZ77(files[9].first, KB_5);
-//
-//        pair<double, double> info = EncodeHuffman("2.doc");
-//        double info = DecodeHuffman("2");
-//
-//        if (i == 2) break;
-//    }
+    LZ77Experiment();
 
     return 0;
 }
@@ -110,12 +99,89 @@ void HuffmanExperiment()
 
         fout2 << averageTime / ITERATIONS_COUNT << ';' << std::endl;
 
-        std::cout << files[i].first << " compression completed!" << std::endl;
+        std::cout << files[i].first << " decompression completed!" << std::endl;
     }
 
     fout2.close();
 }
 
+void LZ77Experiment()
+{
+
+    for (int BUFFER = KB_5; BUFFER != END; BUFFER++)
+    {
+        BUFFER_SIZE bufferSize = static_cast<BUFFER_SIZE>(BUFFER);
+        string bs = "5";
+
+        switch(bufferSize)
+        {
+            case KB_5:
+                bs = "5";
+                break;
+            case KB_10:
+                bs = "10";
+                break;
+            case KB_20:
+                bs = "20";
+                break;
+            case END:
+                break;
+        }
+
+        ofstream fout1("LZ77" + bs + "Compression.csv");
+        fout1 << "File; Average time; Compression ratio;" << std::endl;
+
+        for (size_t i = 0; i < files.size(); i++)
+        {
+
+            double averageTime = 0;
+            double compressionRatio = 0;
+
+            fout1 << files[i].first + files[i].second << ';';
+
+            for (int j = 0; j < ITERATIONS_COUNT + 1; j++)
+            {
+                pair<double, double> info = EncodeLZ77(files[i].first + files[i].second, bufferSize);
+
+                if (j == 0) continue;
+
+                averageTime += info.first;
+                compressionRatio = info.second;
+            }
+
+            fout1 << averageTime / ITERATIONS_COUNT << ';' << compressionRatio << ';' << std::endl;
+
+            std::cout << files[i].first << " compression completed!" << std::endl;
+        }
+
+        fout1.close();
+
+        ofstream fout2("LZ77" + bs + "Decompression.csv");
+        fout2 << "File; Average time;" << std::endl;
+
+        for (size_t i = 0; i < files.size(); i++)
+        {
+            double averageTime = 0;
+
+            fout2 << files[i].first + files[i].second << ';';
+
+            for (int j = 0; j < ITERATIONS_COUNT + 1; j++)
+            {
+                double info = DecodeLZ77(files[i].first, bufferSize);
+
+                if (j == 0) continue;
+
+                averageTime += info;
+            }
+
+            fout2 << averageTime / ITERATIONS_COUNT << ';' << std::endl;
+
+            std::cout << files[i].first << " " + bs + "" <<" decompression completed!" << std::endl;
+        }
+
+        fout2.close();
+    }
+}
 
 pair<double, double> EncodeHuffman(const string& filename)
 {
