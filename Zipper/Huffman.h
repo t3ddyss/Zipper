@@ -22,8 +22,18 @@ using std::get;
 class Huffman
 {
 public:
+    /**
+     * Метод кодирования исходного файла
+     * @param input последовательность байт исходного файла
+     * @return последовательность байт закодированного файла
+     */
     vector<byte> Encode(vector<byte> input);
 
+    /**
+     * Метод декодирования ранее закодированного файла
+     * @param input последовательность байт ранее закодированного файла
+     * @return последовательность байт декодированного файла
+     */
     vector<byte> Decode(vector<byte> input);
 
 private:
@@ -34,8 +44,17 @@ private:
 
         ~HuffmanTree();
 
+        /**
+         * Метод построения кодового дерева
+         */
         void buildTree();
 
+        /**
+         * Фактически декодирует закодированную строку
+         * @param code закодированная строка
+         * @param lastByteUsedBitsCount число используемых битов в последнем байте
+         * @return последовательность байт декодированного файла
+         */
         vector<byte> findSymbols(string code, byte lastByteUsedBitsCount);
 
     private:
@@ -58,10 +77,23 @@ private:
             }
         };
 
+        /**
+         * Проверяет, является ли узел листом
+         * @param node узел
+         * @return да или нет
+         */
         bool isLeaf(Node* node);
 
+        /**
+         * Удаляет поддерево
+         * @param root корень поддерева
+         */
         void deleteTree(Node* root);
 
+        /**
+         * Проходится по поддереву от корня до листьев и сохраняет в них код
+         * @param root корень поддерева
+         */
         void createCodes(Node* root);
 
         vector<Node*> nodes; // node[0] -- tree root after buildTree() execution
@@ -72,6 +104,9 @@ private:
         vector<Node*> leaves;
     };
 
+    /**
+     * Составляет таблицу вероятности появления символа (байта) в исходном файле
+     */
     void buildProbabilityTable();
 
     static const int SYMBOL_DATA_SIZE = 9;

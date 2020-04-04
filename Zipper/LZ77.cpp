@@ -24,7 +24,7 @@ LZ77::Node *LZ77::findMatching(const string& vocab_buffer, int vocab_buffer_end,
     {
         buffer_pos = buffer.find(preview_buffer.substr(0, i));
 
-        if (buffer_pos == vocab_buffer_end + 1) break; // нашлось только в буфере предпросмотра
+        if (buffer_pos == vocab_buffer_end + 1) break;
 
         else
         {

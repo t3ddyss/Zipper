@@ -1,3 +1,11 @@
+// КДЗ по дисциплине Алгоритмы и структуры данных, 2019-2020 уч.год
+// Соколов Фёдор Николаевич, БПИ181, 04.04.2020
+// JetBrains CLion
+// ReadWriter.h, ReadWriter.cpp, LZ77.h, LZ77.cpp, Huffman.h, Huffman.cpp, main.cpp
+// Cделано сжатие и распаковка методом Хаффмана, сжатие и распаковка методом LZ77 с буфером 5, 10 и 20Кб,
+// проведен вычислительный эксперимент, построены таблицы и графики,
+// для измерения времени выполнения использовалcя метод clock(), оформлен отчет
+
 #include <iostream>
 #include <vector>
 #include <ios>
@@ -22,7 +30,7 @@ enum BUFFER_SIZE
     KB_5, KB_10, KB_20, END
 };
 
-const int ITERATIONS_COUNT = 3;
+const int ITERATIONS_COUNT = 10;
 string folder;
 vector<pair<string, string>> files;
 
@@ -42,17 +50,17 @@ int main(int argc, char *argv[])
     folder = "./DATA/";
     setFiles();
 
-    calculateEntropy();
+//    calculateEntropy();
 
-    HuffmanExperiment();
-    LZ77Experiment();
+//    HuffmanExperiment();
+//    LZ77Experiment();
 
     return 0;
 }
 
 void HuffmanExperiment()
 {
-    ofstream fout1("HuffmanCompression.csv");
+    ofstream fout1(folder + "HuffmanCompression.csv");
     fout1 << "File; Average time; Compression ratio;" << std::endl;
 
     for (size_t i = 0; i < files.size(); i++)
@@ -79,7 +87,7 @@ void HuffmanExperiment()
 
     fout1.close();
 
-    ofstream fout2("HuffmanDecompression.csv");
+    ofstream fout2(folder + "HuffmanDecompression.csv");
     fout2 << "File; Average time;" << std::endl;
 
     for (size_t i = 0; i < files.size(); i++)
@@ -128,7 +136,7 @@ void LZ77Experiment()
                 break;
         }
 
-        ofstream fout1("LZ77" + bs + "Compression.csv");
+        ofstream fout1(folder + "LZ77" + bs + "Compression.csv");
         fout1 << "File; Average time; Compression ratio;" << std::endl;
 
         for (size_t i = 0; i < files.size(); i++)
@@ -156,7 +164,7 @@ void LZ77Experiment()
 
         fout1.close();
 
-        ofstream fout2("LZ77" + bs + "Decompression.csv");
+        ofstream fout2(folder + "LZ77" + bs + "Decompression.csv");
         fout2 << "File; Average time;" << std::endl;
 
         for (size_t i = 0; i < files.size(); i++)
@@ -291,7 +299,7 @@ void calculateEntropy()
 {
     ReadWriter readWriter;
 
-    ofstream fout("entropy.csv");
+    ofstream fout(folder + "entropy.csv");
     fout << "File;";
 
     for (int i = 1; i <= 9; i++)
@@ -336,8 +344,7 @@ void calculateEntropy()
         for (size_t j = 0; j < maps.size(); j++)
         {
 
-            byte debug = (byte) i;
-            map<byte, double>::iterator it = maps[j].find(debug);
+            map<byte, double>::iterator it = maps[j].find((byte) i);
 
             if (it != maps[j].end())
             {

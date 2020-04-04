@@ -16,8 +16,20 @@ using std::min;
 class LZ77
 {
 public:
+    /**
+     * Метод кодирования исходного файла
+     * @param input последовательность байт исходного файла
+     * @param VOCAB_BUFFER_SIZE размер буфера словаря
+     * @param PREVIEW_BUFFER_SIZE размер буфера предпросмтра
+     * @return последовательность байт закодированного файла
+     */
     vector<byte> Encode(vector<byte> input, int VOCAB_BUFFER_SIZE, int PREVIEW_BUFFER_SIZE);
 
+    /**
+     * Метод декодирования ранее закодированного файла
+     * @param input последовательность байт ранее закодированного файла
+     * @return последовательность байт декодированного файла
+     */
     vector<byte> Decode(vector<byte> input);
 
     static const int KB_1 = 1 * 1024;
@@ -40,6 +52,14 @@ private:
         }
     };
 
+    /**
+     * Метод поиска совпадения между подстроками буфера предпросмотра и словарем
+     * @param vocab_buffer содержимое буфера словаря
+     * @param vocab_buffer_end индекс последнего элемента буфера словаря
+     * @param preview_buffer содержимое буфера предпросмотра
+     * @param preview_buffer_end индекс последнего элемента буфера предпросмотра
+     * @return блок из трех элементов: индекс, длина, следующий символ
+     */
     Node* findMatching(const string& vocab_buffer, int vocab_buffer_end, string preview_buffer,
                        int preview_buffer_end);
 
@@ -48,7 +68,6 @@ private:
 
 union LongShortByteUnion
 {
-    unsigned long long uLong;
     unsigned short uShort;
     byte uBytes[8];
 };
