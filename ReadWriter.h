@@ -20,18 +20,8 @@ using std::ios;
 class ReadWriter
 {
 public:
-    /**
-     * Чтение байт из файла
-     * @param filename имя файла
-     * @return последовательность байт файла
-     */
     vector<byte> ReadAllBytes(const string& filename);
-
-    /**
-     * Запись байт в файл
-     * @param filename имя файла
-     * @param bytes последовательность байт, которые нужно записать
-     */
+	
     void WriteAllBytes(const string& filename, vector<byte> bytes);
 };
 
